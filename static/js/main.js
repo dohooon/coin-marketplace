@@ -43,9 +43,6 @@ $(document).ready(function() {
         });
     });
 
-    $('#find-password-button').click(function(e) {
-        window.location.href = '/search_password';
-    });
 
     // Password search form
     $('#search_password-form').on('submit', function(event) {
@@ -78,6 +75,29 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     window.location.href = response.redirect_url;
+                } else {
+                    alert(response.error_msg);
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
+    // Deposit form
+    $('#confirm-deposit').on('click', function(e) {
+        e.preventDefault();
+        var formData = new FormData($('#deposit-form')[0]);
+        $.ajax({
+            url: '/deposit',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Update account balance display here, if necessary
+                    alert('입금이 성공적으로 완료되었습니다!');
                 } else {
                     alert(response.error_msg);
                 }

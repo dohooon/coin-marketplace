@@ -2,6 +2,40 @@ from flask import render_template, request, url_for, redirect, jsonify, session,
 from create_app import create_app, mongo
 
 app = create_app()
+
+def initialize_marketplace():
+    marketplace = mongo.db.marketplace
+    marketplace.insert_one({'coin_count': 100, 'coin_price': 100})
+
+with app.app_context():
+    initialize_marketplace()
+
+@app.route('/buy_coin', methods=['POST'])
+def buy_coin():
+    if 'username' in session:
+        users = mongo.db.users
+        marketplace = mongo.db.marketplace
+        market_info = marketplace.find_one()
+
+        coin_price = market_info.get('coin_price', 100)
+        coin_count = int(request.form['coin_count'])
+
+        user = users.find_one({'name': session['username']})
+        account_balance = user.get('account_balance', 0)
+
+        if coin_price * coin_count <= account_balance:
+            new_balance = account_balance - coin_price * coin_count
+            new_market_coin_count = market_info.get('coin_count', 0) - coin_count
+
+            users.update_one({'name': session['username']}, {'$set': {'account_balance': new_balance}})
+            marketplace.update_one({}, {'$set': {'coin_count': new_market_coin_count}})
+
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error_msg': "계정 잔고가 부족합니다."})
+
+    return jsonify({'success': False, 'error_msg': "로그인이 필요합니다."})
+
 @app.route('/')
 def home():
     if 'username' in session:
@@ -21,7 +55,7 @@ def signup():
 
         if existing_user is None:
             users.insert_one({'name': request.form['username'], 'password': request.form['password'], 'password_hint': request.form['password_hint']
-                              ,'amount': 0, 'coin_count': 0})
+                              ,'account_balance': 0, 'coin_count': 0})
             return jsonify({'success': True, 'redirect_url': url_for('home')})
 
         return jsonify({'success': False, 'error_msg': "이미 존재하는 사용자입니다."})
@@ -66,12 +100,12 @@ def search_password():
 @app.route('/deposit', methods=['POST'])
 def deposit():
     if 'username' in session:
-        amount = int(request.form['amount'])
+        account_balance = int(request.form['account_balance'])
         users = mongo.db.users
         user = users.find_one({'name': session['username']})
-        current_amount = user.get('amount', 0)
-        new_amount = current_amount + amount
-        users.update_one({'name': session['username']}, {'$set': {'amount': new_amount}})
+        current_account_balance = user.get('account_balance', 0)
+        new_account_balance = current_account_balance + account_balance
+        users.update_one({'name': session['username']}, {'$set': {'account_balance': new_account_balance}})
         return jsonify({'success': True})
 
 if __name__ == '__main__':

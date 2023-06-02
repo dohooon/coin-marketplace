@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>홈페이지</title>
-    <!-- 부트스트랩 CSS 연결 -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>
 <body>
     <!-- 네비게이션 바 -->
@@ -35,10 +37,41 @@
         </div>
     </nav>
 
-
     <!-- 본문 -->
     <div class="container">
         <!-- 이곳에 웹페이지의 주 내용을 적습니다. -->
+        {% if 'username' in session %}
+            <div class="user-info">
+                <p>보유 코인 수: {{ coin_count }}</p>
+                <p>계정 잔고: {{ account_balance }}</p>
+            </div>
+        {% endif %}
+        <!-- 코인 구매 폼 -->
+        <div class="modal fade" id="buyCoinModal" tabindex="-1" role="dialog" aria-labelledby="buyCoinModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="buyCoinModalLabel">마켓에서 코인 구매하기</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="buy-coin-form">
+                            <div class="form-group">
+                                <label for="coin_count">구매할 코인 수:</label>
+                                <input type="number" class="form-control" id="coin_count" name="coin_count" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="confirm-buy-coin">확인</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="modal fade" id="depositModal" tabindex="-1" role="dialog" aria-labelledby="depositModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -51,8 +84,8 @@
                     <div class="modal-body">
                         <form id="deposit-form">
                             <div class="form-group">
-                                <label for="amount">입금액:</label>
-                                <input type="number" class="form-control" id="amount" name="amount" required>
+                                <label for="account_balance">입금액:</label>
+                                <input type="number" class="form-control" id="account_balance" name="account_balance" required>
                             </div>
                         </form>
                     </div>
@@ -64,9 +97,5 @@
             </div>
         </div>
     </div>
-
-    <!-- 부트스트랩 JS 및 jQuery 연결 -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
