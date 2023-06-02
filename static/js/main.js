@@ -88,6 +88,7 @@ $(document).ready(function() {
     $('#confirm-deposit').on('click', function(e) {
         e.preventDefault();
         var formData = new FormData($('#deposit-form')[0]);
+
         $.ajax({
             url: '/deposit',
             type: 'POST',
@@ -98,6 +99,7 @@ $(document).ready(function() {
                 if (response.success) {
                     // Update account balance display here, if necessary
                     alert('입금이 성공적으로 완료되었습니다!');
+                    window.location.href = '/';
                 } else {
                     alert(response.error_msg);
                 }
