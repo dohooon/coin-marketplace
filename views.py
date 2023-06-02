@@ -4,7 +4,15 @@ from create_app import create_app, mongo
 app = create_app()
 @app.route('/')
 def home():
-    return render_template('home.html')
+    if 'username' in session:
+        users = mongo.db.users
+        user = users.find_one({'name': session['username']})
+        coin_count = user.get('coin_count', 0)
+        account_balance = user.get('account_balance', 0)
+        return render_template('home.html', coin_count=coin_count, account_balance=account_balance)
+    else:
+        return render_template('home.html')
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -12,7 +20,8 @@ def signup():
         existing_user = users.find_one({'name': request.form['username']})
 
         if existing_user is None:
-            users.insert_one({'name': request.form['username'], 'password': request.form['password'], 'password_hint': request.form['password_hint']})
+            users.insert_one({'name': request.form['username'], 'password': request.form['password'], 'password_hint': request.form['password_hint']
+                              ,'amount': 0, 'coin_count': 0})
             return jsonify({'success': True, 'redirect_url': url_for('home')})
 
         return jsonify({'success': False, 'error_msg': "이미 존재하는 사용자입니다."})
@@ -53,6 +62,17 @@ def search_password():
         return redirect(url_for('search_password'))
 
     return render_template('search_password.html')
+
+@app.route('/deposit', methods=['POST'])
+def deposit():
+    if 'username' in session:
+        amount = int(request.form['amount'])
+        users = mongo.db.users
+        user = users.find_one({'name': session['username']})
+        current_amount = user.get('amount', 0)
+        new_amount = current_amount + amount
+        users.update_one({'name': session['username']}, {'$set': {'amount': new_amount}})
+        return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run()
