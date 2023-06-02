@@ -109,4 +109,30 @@ $(document).ready(function() {
             }
         });
     });
+
+    // buy coin form confirm-buy-coin
+    $('#confirm-buy-coin').on('click', function(e) {
+        e.preventDefault();
+        var formData = new FormData($('#buy-coin-form')[0]);
+
+        $.ajax({
+            url: '/buy-coin',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Update account balance display here, if necessary
+                    alert('코인 구매가 성공적으로 완료되었습니다!');
+                    window.location.href = '/';
+                } else {
+                    alert(response.error_msg);
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
 });
