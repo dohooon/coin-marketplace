@@ -1,17 +1,10 @@
-from flask import Flask, render_template, request, url_for, redirect, jsonify, session
-from flask_pymongo import PyMongo
-from flask import flash
-from flask import Flask, render_template, request, url_for, redirect, jsonify, session, flash
+from flask import render_template, request, url_for, redirect, jsonify, session, flash
+from create_app import create_app, mongo
 
-app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/myDatabase"  # 데이터베이스 URI
-app.secret_key = 'dgusoftwareengineeringverysecretkey'
-mongo = PyMongo(app)
-
+app = create_app()
 @app.route('/')
 def home():
     return render_template('home.html')
-
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -31,12 +24,13 @@ def login():
     if request.method == 'POST':
         users = mongo.db.users
         login_user = users.find_one({'name': request.form['username']})
-
-        if login_user and request.form['password'] == login_user['password']:
-            session['username'] = login_user['name']
-            return jsonify({'success': True, 'redirect_url': url_for('home')})
-
-        return jsonify({'success': False, 'error_msg': '로그인 실패! 아이디 또는 비밀번호가 잘못되었습니다.'})
+        if login_user :
+            if request.form['password'] == login_user['password']:
+                session['username'] = login_user['name']
+                return jsonify({'success': True, 'redirect_url': url_for('home')})
+            else:
+                return jsonify({'success': False, 'error_msg': '로그인 실패! 아이디 또는 비밀번호가 잘못되었습니다.'})
+        return jsonify({'success': False, 'error_msg': '회원가입 필요'})
 
     return render_template('login.html')
 
@@ -59,3 +53,6 @@ def search_password():
         return redirect(url_for('search_password'))
 
     return render_template('search_password.html')
+
+if __name__ == '__main__':
+    app.run()

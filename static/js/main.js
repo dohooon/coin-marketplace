@@ -29,11 +29,11 @@ $(document).ready(function() {
                     window.location.href = data.redirect_url;
                 } else {
                     if (data.error_msg === '로그인 실패! 아이디 또는 비밀번호가 잘못되었습니다.') {
-                        // 아이디가 존재하지 않을 때 회원가입 여부 모달
-                        $('#signupModal').modal('show');
-                    } else {
                         $('#errorModalBody').text(data.error_msg);
                         $('#errorModal').modal('show');
+                    } else if(data.error_msg === '회원가입 필요'){
+                        // 아이디가 존재하지 않을 때 회원가입 여부 모달
+                        $('#signupModal').modal('show');
                     }
                 }
             },
