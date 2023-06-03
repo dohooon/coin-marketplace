@@ -7,48 +7,36 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>
 <body>
     <!-- 네비게이션 바 -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Coin MarketPlace</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                {% if 'username' in session %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">로그아웃</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="modal" data-target="#depositModal">입금하기</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">로그인</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/signup">회원가입</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
+    {% include 'navbar.html' %}
 
     <!-- 본문 -->
-    <div class="container">
-        <!-- 이곳에 웹페이지의 주 내용을 적습니다. -->
-        {% if 'username' in session %}
-            <div class="user-info">
-                <p>보유 코인 수: {{ coin_count }}</p>
-                <p>계정 잔고: {{ account_balance }}</p>
+    <div class="main">
+        <div class = "container-info d-flex">
+            <!-- 이곳에 웹페이지의 주 내용을 적습니다. -->
+            <h1>현재 코인 현황</h1>
+            <div class = "coin-info">
+                <p>마켓 보유 코인 수 : {{ market_coin_count }}</p>
+                <p>최근 코인 가격 : {{ market_coin_price }}</p>
             </div>
-        {% endif %}
 
+            {% if 'username' in session %}
+                <div class="user-info">
+                    <p>보유 코인 수: {{ coin_count }}</p>
+                    <p>계정 잔고: {{ account_balance }}</p>
+                </div>
+            {% endif %}
+        </div>
         <!--차트 및 최근 거래 등락률 표시 -->
-
+        <!-- 차트 -->
+         <div class="chart-wrapper">
+             <h3>최근 성사된 거래</h3>
+            <canvas id="coinChart"></canvas>
+         </div>
         <!-- 구매하기 버튼 표시 -->
         {% if 'username' in session %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal">코인 구매하기</button>
@@ -78,31 +66,35 @@
                 </div>
             </div>
         </div>
-
-        <div class="modal fade" id="depositModal" tabindex="-1" role="dialog" aria-labelledby="depositModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="depositModalLabel">입금하기</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="deposit-form">
-                            <div class="form-group">
-                                <label for="account_balance">입금액:</label>
-                                <input type="number" class="form-control" id="account_balance" name="account_balance" required>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="confirm-deposit">확인</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    {% include 'deposit_modal.html' %}
+    {% include 'withdraw_modal.html' %}
     </div>
+<script>
+    var coinLabels = {{ coin_labels|tojson }};
+    var coinPrices = {{ coin_prices|tojson }};
+
+    // 차트 설정
+    var ctx = document.getElementById('coinChart').getContext('2d');
+    var coinChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: coinLabels,
+            datasets: [{
+                label: '코인 가격',
+                data: coinPrices,
+                backgroundColor: 'rgba(0, 123, 255, 0.3)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
 </body>
 </html>
