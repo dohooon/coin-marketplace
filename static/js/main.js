@@ -109,6 +109,32 @@ $(document).ready(function() {
             }
         });
     });
+    // Withdraw form
+    $('#confirm-withdraw').on('click', function(e) {
+        e.preventDefault();
+        var formData = new FormData($('#withdraw-form')[0]);
+
+        $.ajax({
+            url: '/withdraw',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Update account balance display here, if necessary
+                    alert('출금이 성공적으로 완료되었습니다!');
+                    window.location.href = '/';
+                } else {
+                    alert(response.error_msg);
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
+
 
     // buy coin form confirm-buy-coin
     $('#confirm-buy-coin').on('click', function(e) {
@@ -135,4 +161,36 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('#confirm-sell-coin').click(function() {
+        var coinCount = $('#sell_coin_count').val();
+        var price = $('#sell_coin_price').val();
+
+        var data = JSON.stringify({
+            sell_coin_count: coinCount,
+            sell_coin_price: price
+        });
+
+        $.ajax({
+            url: '/sell_coin',
+            type: 'POST',
+            data: data,
+            contentType: 'application/json',  // 데이터 형식을 JSON으로 설정
+            success: function(response) {
+                // POST 요청이 성공한 경우의 처리
+                console.log(response);
+                // 성공적으로 게시되었음을 사용자에게 알림
+                alert('게시글이 성공적으로 게시되었습니다.');
+                // 페이지를 새로고침하여 최신 게시글 목록을 표시
+                location.reload();
+            },
+            error: function(error) {
+                // POST 요청이 실패한 경우의 처리
+                console.log(error);
+                // 오류 메시지를 사용자에게 알림
+                alert('게시글 게시 중 오류가 발생했습니다. 다시 시도해주세요.');
+            }
+        });
+    });
+
 });
