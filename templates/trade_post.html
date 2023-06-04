@@ -19,11 +19,12 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">사용자</th>
+                    <th scope="col">글쓴이</th>
                     <th scope="col">코인 수</th>
                     <th scope="col">가격</th>
                     <th scope="col">시간</th>
                     <th scope="col">상태</th>
+                    <th scope="col">삭제</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,6 +35,14 @@
                         <td>{{ post.price }}</td>
                         <td>{{ post.timestamp }}</td>
                         <td>{{ post.status }}</td>
+                        <td>
+                            {% if session['username'] == post.user %}
+                            <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ post._id }}')">&times;</button>
+                            {% else %}
+                            <button type="button" class="btn btn-danger" disabled>&times;</button>
+                            {% endif %}
+                        </td>
+                        <td></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -74,5 +83,29 @@
             </div>
         </div>
     </div>
+
+<script>
+    function confirmDelete(postId) {
+    let confirmed = confirm("정말로 이 게시글을 삭제하시겠습니까?");
+        if (confirmed) {
+            deletePost(postId);
+        }
+    }
+
+    function deletePost(postId) {
+        fetch('/delete_post/' + postId, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error_msg);
+            }
+        })
+    }
+</script>
 </body>
+
 </html>

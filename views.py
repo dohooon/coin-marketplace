@@ -1,5 +1,6 @@
 from flask import render_template, request, url_for, redirect, jsonify, session, flash
 from create_app import create_app, mongo
+from bson.objectid import ObjectId
 import pymongo
 from datetime import datetime
 
@@ -7,7 +8,8 @@ app = create_app()
 
 # 게시글 테이블
 class TradePost:
-    def __init__(self, user, coin_count, price, timestamp, status):
+    def __init__(self, _id, user, coin_count, price, timestamp, status):
+        self._id = _id
         self.user = user
         self.coin_count = coin_count
         self.price = price
@@ -31,13 +33,14 @@ def get_posts():
     post_list = []
 
     for post in posts:
+        _id = post['_id']
         user = post['user']
         coin_count = post['coin_count']
         price = post['price']
         timestamp = post['timestamp']
         status = post['status']
 
-        trade_post = TradePost(user=user, coin_count=coin_count, price=price, timestamp=timestamp, status=status)
+        trade_post = TradePost(_id=_id, user=user, coin_count=coin_count, price=price, timestamp=timestamp, status=status)
         post_list.append(trade_post)
 
     return post_list
@@ -77,9 +80,42 @@ def sell_coin():
 
         return jsonify({'success': False, 'error_msg': "로그인이 필요합니다."})
 
+
+@app.route('/delete_post/<post_id>', methods=['POST'])
+def delete_post(post_id):
+    if 'username' in session:
+        trade_posts = mongo.db.trade_posts
+        users = mongo.db.users
+        marketplace = mongo.db.marketplace
+        market_info = marketplace.find_one()
+
+        post = trade_posts.find_one({"_id": ObjectId(post_id)})
+        if post and post['user'] == session['username']:
+            post_coin_count = post.get('coin_count', 0)
+            user = users.find_one({'name': session['username']})
+            user_coin_count = user.get('coin_count', 0)
+
+            # 게시글에 올라온 코인 수 만큼이 삭제한 사용자의 코인에 추가되고 마켓에서 삭제됩니다.
+            new_user_coin_count = user_coin_count + post_coin_count
+            new_market_coin_count = market_info.get('coin_count', 0) - post_coin_count
+
+            users.update_one({'name': session['username']}, {'$set': {'coin_count': new_user_coin_count}})
+            marketplace.update_one({}, {'$set': {'coin_count': new_market_coin_count}})
+
+            # 게시글 삭제
+            trade_posts.delete_one({"_id": ObjectId(post_id)})
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error_msg': "이 게시글을 삭제할 권한이 없습니다."})
+    else:
+        return jsonify({'success': False, 'error_msg': "로그인이 필요합니다."})
+
+
 @app.route('/trade_post', methods=['GET', 'POST'])
 def trade_post():
     posts = get_posts()
+    if posts is None:
+        posts = []
     return render_template('trade_post.html', posts=posts)
 
 def initialize_marketplace():
