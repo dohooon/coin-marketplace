@@ -20,8 +20,12 @@
             <!-- 이곳에 웹페이지의 주 내용을 적습니다. -->
             <h1>현재 코인 현황</h1>
             <div class = "coin-info">
+                {% if market_coin_count < 0 %} <!-- -로 표현되지 않도록 -->
+                <p>마켓 보유 코인 수 : 0</p>
+                {% else %}
                 <p>마켓 보유 코인 수 : {{ market_coin_count }}</p>
-                <p>최근 코인 가격 : {{ market_coin_price }}</p>
+                {% endif %}
+                <p>현재 코인 가격 : {{ market_coin_price }}</p>
             </div>
 
             {% if 'username' in session %}
@@ -31,7 +35,15 @@
                 </div>
             {% endif %}
         </div>
-        <!--차트 및 최근 거래 등락률 표시 -->
+        <!-- 코인 거래 등락률 표시, 마지막 코인 거래보다 높으면 빨간색 낮으면 파란색으로 표시 -->
+        {% if coin_change_rate > 0 %}
+            <p>코인 등락률: <span style="color: red;">+{{ coin_change_rate }}%</span></p>
+        {% elif coin_change_rate == 0 %}
+            <p>코인 등락률: <span>{{ coin_change_rate }}%</span></p>
+        {% else %}
+            <p>코인 등락률: <span style="color: blue;">{{ coin_change_rate }}%</span></p>
+        {% endif %}
+
         <!-- 차트 -->
          <div class="chart-wrapper">
              <h3>최근 성사된 거래</h3>
@@ -39,7 +51,11 @@
          </div>
         <!-- 구매하기 버튼 표시 -->
         {% if 'username' in session %}
+            {% if market_coin_count %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal">코인 구매하기</button>
+            {% else %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal" disabled>코인 구매하기</button>
+            {% endif %}
         {% endif %}
         <!-- 코인 구매 폼 -->
         <div class="modal fade" id="buyCoinModal" tabindex="-1" role="dialog" aria-labelledby="buyCoinModalLabel" aria-hidden="true">
