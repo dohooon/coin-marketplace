@@ -11,6 +11,7 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>
 <body>
+
 <!-- 네비게이션 바 -->
 {% include 'navbar.html' %}
 
@@ -57,7 +58,7 @@
                 </tr>
                 <tr>
                     <td>계정 잔고:</td>
-                    <td>{{ account_balance }} WON</td>
+                    <td>{{ "{:,.0f}".format(account_balance) }} WON</td>
                     {% endif %}
                 </tr>
                 </tbody>
@@ -114,14 +115,14 @@
 <!-- 차트 -->
 <div class="chart-wrapper">
     <canvas id="coinChart"></canvas>
-    <h3 class="chart-title" style="font-family: Arial, sans-serif; font-size: 16px;"> - 최근 성사된 거래</h3>
+    <h3 class="chart-title" style="font-size: 16px;"> - 최근 성사된 거래</h3>
 
 </div>
 <style>
     .chart-wrapper {
         position: relative;
-        width: 60%; /* 너비를 원하는 크기로 조정하세요 */
-        margin: 0 auto; /* 가운데 정렬을 위해 추가한 스타일 */
+        width: 60%;
+        margin: 0 auto;
     }
 
     .chart-title {
@@ -131,8 +132,11 @@
         transform: translate(-50%, -50%);
     }
 
+
 </style>
 </div>
+
+
 <script>
     var coinLabels = {{ coin_labels|tojson }};
     var coinPrices = {{ coin_prices|tojson }};
@@ -167,7 +171,6 @@
 
     // 차트 설정
     var ctx = document.getElementById('coinChart').getContext('2d');
-
     var coinChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -184,11 +187,7 @@
              maintainAspectRatio: false,
         }
     }
-
     );
-
-
-
 </script>
 </body>
 </html>
