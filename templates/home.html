@@ -11,86 +11,160 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </head>
 <body>
-    <!-- 네비게이션 바 -->
-    {% include 'navbar.html' %}
+<!-- 네비게이션 바 -->
+{% include 'navbar.html' %}
 
-    <!-- 본문 -->
-    <div class="main">
-        <div class = "container-info d-flex">
-            <!-- 이곳에 웹페이지의 주 내용을 적습니다. -->
-            <h1>현재 코인 현황</h1>
-            <div class = "coin-info">
-                {% if market_coin_count < 0 %} <!-- -로 표현되지 않도록 -->
-                <p>마켓 보유 코인 수 : 0</p>
+<div class="main">
+    <div class="container d-flex justify-content-center">
+        <div class="coin-info">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col" colspan="2">코인 정보</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if market_coin_count < 0 %}
+                <tr>
+                    <td>마켓 보유 코인 수:</td>
+                    <td>0</td>
+                </tr>
                 {% else %}
-                <p>마켓 보유 코인 수 : {{ market_coin_count }}</p>
+                <tr>
+                    <td>마켓 보유 코인 수:</td>
+                    <td>{{ market_coin_count }} COINS</td>
+                </tr>
                 {% endif %}
-                <p>현재 코인 가격 : {{ market_coin_price }}</p>
-            </div>
+                <tr>
+                    <td>현재 코인 가격:</td>
+                    <td>{{ market_coin_price }} WON</td>
+                </tr>
+                <tr>
+                    <td>코인 등락률</td>
+                    <td>{% if coin_change_rate > 0 %}
+                        <span style="color: red;">+{{ coin_change_rate }}%</span>
+                        {% elif coin_change_rate == 0 %}
+                        <span>{{ coin_change_rate }}%</span>
+                        {% else %}
+                        <span style="color: blue;">{{ coin_change_rate }}%</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if 'username' in session %}
+                <tr>
+                    <td>보유 코인 수:</td>
+                    <td>{{ coin_count }} COINS</td>
+                </tr>
+                <tr>
+                    <td>계정 잔고:</td>
+                    <td>{{ account_balance }} WON</td>
+                    {% endif %}
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
+        <div class="coin-button col-md-4 text-right">
             {% if 'username' in session %}
-                <div class="user-info">
-                    <p>보유 코인 수: {{ coin_count }}</p>
-                    <p>계정 잔고: {{ account_balance }}</p>
-                </div>
+            {% if market_coin_count %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal">코인 구매하기
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal" disabled>코인
+                구매하기
+            </button>
+            {% endif %}
             {% endif %}
         </div>
-        <!-- 코인 거래 등락률 표시, 마지막 코인 거래보다 높으면 빨간색 낮으면 파란색으로 표시 -->
-        {% if coin_change_rate > 0 %}
-            <p>코인 등락률: <span style="color: red;">+{{ coin_change_rate }}%</span></p>
-        {% elif coin_change_rate == 0 %}
-            <p>코인 등락률: <span>{{ coin_change_rate }}%</span></p>
-        {% else %}
-            <p>코인 등락률: <span style="color: blue;">{{ coin_change_rate }}%</span></p>
-        {% endif %}
+    </div>
+</div>
 
-        <!-- 차트 -->
-         <div class="chart-wrapper">
-             <h3>최근 성사된 거래</h3>
-            <canvas id="coinChart"></canvas>
-         </div>
-        <!-- 구매하기 버튼 표시 -->
-        {% if 'username' in session %}
-            {% if market_coin_count %}
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal">코인 구매하기</button>
-            {% else %}
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal" disabled>코인 구매하기</button>
-            {% endif %}
-        {% endif %}
-        <!-- 코인 구매 폼 -->
-        <div class="modal fade" id="buyCoinModal" tabindex="-1" role="dialog" aria-labelledby="buyCoinModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="buyCoinModalLabel">마켓에서 코인 구매하기</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+
+<!-- 코인 구매 폼 -->
+<div class="modal fade" id="buyCoinModal" tabindex="-1" role="dialog" aria-labelledby="buyCoinModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="buyCoinModalLabel">마켓에서 코인 구매하기</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="buy-coin-form">
+                    <div class="form-group">
+                        <label for="coin_count">구매할 코인 수:</label>
+                        <input type="number" class="form-control" id="coin_count" name="coin_count" required>
                     </div>
-                    <div class="modal-body">
-                        <form id="buy-coin-form">
-                            <div class="form-group">
-                                <label for="coin_count">구매할 코인 수:</label>
-                                <input type="number" class="form-control" id="coin_count" name="coin_count" required>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="confirm-buy-coin">확인</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                    </div>
-                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirm-buy-coin">확인</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
             </div>
         </div>
-    {% include 'deposit_modal.html' %}
-    {% include 'withdraw_modal.html' %}
     </div>
+</div>
+{% include 'deposit_modal.html' %}
+{% include 'withdraw_modal.html' %}
+</div>
+
+
+<!-- 차트 -->
+<div class="chart-wrapper">
+    <canvas id="coinChart"></canvas>
+    <h3 class="chart-title">최근 성사된 거래</h3>
+</div>
+<style>
+    .chart-wrapper {
+        position: relative;
+    }
+
+    .chart-title {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+</style>
+</div>
 <script>
     var coinLabels = {{ coin_labels|tojson }};
     var coinPrices = {{ coin_prices|tojson }};
 
+    // 코인 가격에 따라 동적으로 배경 색상을 반환하는 함수
+    function getChartBackgroundColor(prices) {
+        var lastPrice = prices[prices.length - 2];
+        var currentPrice = prices[prices.length - 1];
+
+        if (currentPrice > lastPrice) {
+            return 'rgba(255, 0, 0, 0.3)'; // 상승 시 빨간색 배경
+        } else if (currentPrice < lastPrice) {
+            return 'rgba(0, 0, 255, 0.3)'; // 하강 시 파란색 배경
+        } else {
+            return 'rgba(0, 123, 255, 0.3)'; // 동일 시 기본 배경
+        }
+    }
+
+    // 코인 가격에 따라 동적으로 테두리 색상을 반환하는 함수
+    function getChartBorderColor(prices) {
+        var lastPrice = prices[prices.length - 2];
+        var currentPrice = prices[prices.length - 1];
+
+        if (currentPrice > lastPrice) {
+            return 'rgba(255, 0, 0, 1)'; // 상승 시 빨간색 테두리
+        } else if (currentPrice < lastPrice) {
+            return 'rgba(0, 0, 255, 1)'; // 하강 시 파란색 테두리
+        } else {
+            return 'rgba(0, 123, 255, 1)'; // 동일 시 기본 테두리
+        }
+    }
+
     // 차트 설정
     var ctx = document.getElementById('coinChart').getContext('2d');
+
     var coinChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -98,8 +172,8 @@
             datasets: [{
                 label: '코인 가격',
                 data: coinPrices,
-                backgroundColor: 'rgba(0, 123, 255, 0.3)',
-                borderColor: 'rgba(0, 123, 255, 1)',
+                backgroundColor: getChartBackgroundColor(coinPrices),
+                borderColor: getChartBorderColor(coinPrices),
                 borderWidth: 1
             }]
         },
@@ -110,7 +184,15 @@
                 }
             }
         }
-    });
+    }
+
+    );
+
+
+
+
+
+
 </script>
 </body>
 </html>

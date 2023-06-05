@@ -15,119 +15,126 @@
     </style>
 </head>
 <body>
-    <!-- 네비게이션 바 -->
-    {% include 'navbar.html' %}
-    <!-- 거래 게시판 -->
-    <div class="container">
-        <h1>거래 게시판</h1>
-        <h2>거래 목록</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">글쓴이</th>
-                    <th scope="col">코인 수</th>
-                    <th scope="col">가격</th>
-                    <th scope="col">시간</th>
-                    <th scope="col">상태</th>
-                    <th scope="col">구매하기</th>
-                    <th scope="col">삭제</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for post in posts %}
-                    {% if post.coin_count %}
-                    <tr id={{ post._id }}>
-                    {% else %}
-                    <tr id={{ post._id }} class="completed-row">
-                    {% endif %}
-                        <td>{{ post.user }}</td>
-                        <td>{{ post.coin_count }}</td>
-                        <td>{{ post.price }}</td>
-                        <td>{{ post.timestamp }}</td>
-                        <td>{{ post.status }}</td>
-                        <td>
-                            {% if post.status == '거래 완료' or session['username'] == post.user %}
-                            <button type="button" class="btn btn-primary" onclick="showBuyModal('{{ post._id }}', '{{ post.coin_count }}', '{{ post.price }}')" disabled>구매하기</button>
-                            {% else %}
-                            <button type="button" class="btn btn-primary" onclick="showBuyModal('{{ post._id }}', '{{ post.coin_count }}', '{{ post.price }}')">구매하기</button>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if session['username'] == post.user %}
-                                <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ post._id }}')">&times;</button>
-                            {% else %}
-                                <button type="button" class="btn btn-danger" disabled>&times;</button>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<!-- 네비게이션 바 -->
+{% include 'navbar.html' %}
+<!-- 거래 게시판 -->
+<div class="container">
+    <h1>거래 게시판</h1>
+    <h2>거래 목록</h2>
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#sellCoinModal">판매글 게시</button>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">글쓴이</th>
+            <th scope="col">코인 수</th>
+            <th scope="col">가격</th>
+            <th scope="col">시간</th>
+            <th scope="col">상태</th>
+            <th scope="col">구매하기</th>
+            <th scope="col">삭제</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for post in posts %}
+        {% if post.coin_count %}
+        <tr id={{ post._id }}>
+            {% else %}
+        <tr id={{ post._id }} class="completed-row">
+            {% endif %}
+            <td>{{ post.user }}</td>
+            <td>{{ post.coin_count }}</td>
+            <td>{{ post.price }}</td>
+            <td>{{ post.timestamp }}</td>
+            <td>{{ post.status }}</td>
+            <td>
+                {% if post.status == '거래 완료' or session['username'] == post.user %}
+                <button type="button" class="btn btn-primary"
+                        onclick="showBuyModal('{{ post._id }}', '{{ post.coin_count }}', '{{ post.price }}')" disabled>
+                    구매하기
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-primary"
+                        onclick="showBuyModal('{{ post._id }}', '{{ post.coin_count }}', '{{ post.price }}')">구매하기
+                </button>
+                {% endif %}
+            </td>
+            <td>
+                {% if session['username'] == post.user %}
+                <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ post._id }}')">&times;</button>
+                {% else %}
+                <button type="button" class="btn btn-danger" disabled>&times;</button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 
-    {% include 'deposit_modal.html' %}
-    {% include 'withdraw_modal.html' %}
 
-    <!-- 판매글 게시 모달 -->
-    <div class="modal fade" id="sellCoinModal" tabindex="-1" role="dialog" aria-labelledby="sellCoinModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="sellCoinModalLabel">판매글 게시</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="sell-coin-form">
-                        <div class="form-group">
-                            <label for="sell_coin_count">코인 수:</label>
-                            <input type="number" class="form-control" id="sell_coin_count" name="sell_coin_count" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="sell_price">가격:</label>
-                            <input type="number" class="form-control" id="sell_coin_price" name="sell_coin_price" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="confirm-sell-coin">확인</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                </div>
+{% include 'deposit_modal.html' %}
+{% include 'withdraw_modal.html' %}
+
+<!-- 판매글 게시 모달 -->
+<div class="modal fade" id="sellCoinModal" tabindex="-1" role="dialog" aria-labelledby="sellCoinModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sellCoinModalLabel">판매글 게시</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="sell-coin-form">
+                    <div class="form-group">
+                        <label for="sell_coin_count">코인 수:</label>
+                        <input type="number" class="form-control" id="sell_coin_count" name="sell_coin_count" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sell_price">가격:</label>
+                        <input type="number" class="form-control" id="sell_coin_price" name="sell_coin_price" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirm-sell-coin">확인</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
             </div>
         </div>
     </div>
-    <!-- 구매 모달 -->
-    <div class="modal fade" id="buyModal" tabindex="-1" role="dialog" aria-labelledby="buyModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="buyModalLabel">구매하기</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="buy-coin-count">구매할 코인 수:</label>
-                            <input type="number" class="form-control" id="buy-coin-count" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="buy-coin-price">코인 가격:</label>
-                            <input type="number" class="form-control" id="buy-coin-price" readonly>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="confirm-buy">구매</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                </div>
+</div>
+<!-- 구매 모달 -->
+<div class="modal fade" id="buyModal" tabindex="-1" role="dialog" aria-labelledby="buyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="buyModalLabel">구매하기</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="buy-coin-count">구매할 코인 수:</label>
+                        <input type="number" class="form-control" id="buy-coin-count" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="buy-coin-price">코인 가격:</label>
+                        <input type="number" class="form-control" id="buy-coin-price" readonly>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirm-buy">구매</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
             </div>
         </div>
     </div>
+</div>
 
 <script>
     function confirmDelete(postId) {
@@ -188,6 +195,13 @@
             }
         });
     }
+
+
+
+
+
+
+
 
 </script>
 </body>
