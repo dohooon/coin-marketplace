@@ -16,11 +16,11 @@
 
 <div class="main">
     <div class="container d-flex justify-content-center">
-        <div class="coin-info">
+        <div class="coin-info" style="margin-bottom: 60px;">
             <table class="table">
                 <thead>
                 <tr>
-                    <th scope="col" colspan="2">코인 정보</th>
+                    <th scope="col" colspan="2" style="text-align:center">코인 정보</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -114,17 +114,20 @@
 <!-- 차트 -->
 <div class="chart-wrapper">
     <canvas id="coinChart"></canvas>
-    <h3 class="chart-title">최근 성사된 거래</h3>
+    <h3 class="chart-title" style="font-family: Arial, sans-serif; font-size: 16px;"> - 최근 성사된 거래</h3>
+
 </div>
 <style>
     .chart-wrapper {
         position: relative;
+        width: 60%; /* 너비를 원하는 크기로 조정하세요 */
+        margin: 0 auto; /* 가운데 정렬을 위해 추가한 스타일 */
     }
 
     .chart-title {
         position: absolute;
-        top: 50%;
-        left: 50%;
+        top: 5%;
+        left: 20%;
         transform: translate(-50%, -50%);
     }
 
@@ -178,18 +181,11 @@
             }]
         },
         options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+             maintainAspectRatio: false,
         }
     }
 
     );
-
-
-
 
 
 
