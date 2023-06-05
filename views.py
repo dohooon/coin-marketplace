@@ -136,9 +136,10 @@ def buy_coin_from_post(post_id):
                 new_buyer_balance = buyer_balance - buy_count * post_coin_price
                 new_buyer_coin_count = buyer_coin_count + buy_count
 
-                #마켓의 코인 수량 업데이트
+                #마켓의 코인 수량 및 가격 업데이트
                 new_market_coin_count = market_info.get('coin_count', 0) - buy_count
                 marketplace.update_one({}, {'$set': {'coin_count': new_market_coin_count}})
+                marketplace.update_one({}, {'$set': {'coin_price': post_coin_price}})
 
                 # 판매자의 잔고 업데이트
                 users.update_one({'name': post_user}, {'$set': {'account_balance': new_post_user_balance}})
