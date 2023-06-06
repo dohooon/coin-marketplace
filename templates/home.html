@@ -16,7 +16,7 @@
 {% include 'navbar.html' %}
 
 <div class="main">
-    <div class="container d-flex justify-content-center">
+    <div class="container d-flex justify-content-end">
         <div class="coin-info" style="margin-bottom: 60px;">
             <table class="table">
                 <thead>
@@ -65,7 +65,7 @@
             </table>
         </div>
 
-        <div class="coin-button col-md-4 text-right">
+        <div class="coin-button col-md-4 text-left">
             {% if 'username' in session %}
             {% if market_coin_count %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal">코인 구매하기
@@ -133,6 +133,7 @@
     }
 
 
+
 </style>
 </div>
 
@@ -171,23 +172,37 @@
 
     // 차트 설정
     var ctx = document.getElementById('coinChart').getContext('2d');
-    var coinChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: coinLabels,
-            datasets: [{
-                label: '코인 가격',
-                data: coinPrices,
-                backgroundColor: getChartBackgroundColor(coinPrices),
-                borderColor: getChartBorderColor(coinPrices),
-                borderWidth: 1
-            }]
-        },
-        options: {
-             maintainAspectRatio: false,
-        }
+   var coinChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: coinLabels,
+        datasets: [{
+            label: '코인 가격',
+            data: coinPrices,
+            backgroundColor: getChartBackgroundColor(coinPrices),
+            borderColor: getChartBorderColor(coinPrices),
+            borderWidth: 1,
+            pointBackgroundColor: function(context) {
+                var index = context.dataIndex;
+                var currentPrice = context.dataset.data[index];
+
+                if (index > 0) {
+                    var lastPrice = context.dataset.data[index - 1];
+                    if (currentPrice > lastPrice) {
+                        return 'rgba(255, 0, 0, 1)'; // 상승 시 빨간색 포인트
+                    } else if (currentPrice < lastPrice) {
+                        return 'rgba(0, 0, 255, 1)'; // 하강 시 파란색 포인트
+                    }
+                }
+
+                return 'rgba(0, 0, 0, 1)'; // 기본 포인트 색상
+            }
+        }]
+    },
+    options: {
+        maintainAspectRatio: false
     }
-    );
+});
 </script>
 </body>
 </html>

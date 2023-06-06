@@ -207,11 +207,18 @@ def home():
             ((last_two_prices[0]['price'] - last_two_prices[1]['price']) / last_two_prices[1]['price']) * 100, 2)
 
     # 시간대와 가격 데이터 추출 및 포맷팅
+    prev_date = None  # 이전 값의 날짜를 저장하는 변수
     for data in coin_data:
         timestamp = data["timestamp"]
         price = data["price"]
 
-        formatted_timestamp = timestamp.strftime("%m월 %d일 %p %I시 %M분")
+        formatted_timestamp = timestamp.strftime("%m/%d %I:%M%p")
+
+        if prev_date == timestamp.date():
+            formatted_timestamp = timestamp.strftime("%I:%M%p")  # 날짜가 같으면 시간만 출력
+        else:
+            prev_date = timestamp.date()
+
         coin_labels.append(formatted_timestamp)
         coin_prices.append(price)
 
