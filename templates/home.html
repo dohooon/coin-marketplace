@@ -112,12 +112,11 @@
 </div>
 
 
-<!-- 차트 -->
 <div class="chart-wrapper">
     <canvas id="coinChart"></canvas>
     <h3 class="chart-title" style="font-size: 16px;"> - 최근 성사된 거래</h3>
-
 </div>
+
 <style>
     .chart-wrapper {
         position: relative;
@@ -132,11 +131,7 @@
         transform: translate(-50%, -50%);
     }
 
-
-
 </style>
-</div>
-
 
 <script>
     var coinLabels = {{ coin_labels|tojson }};
@@ -152,7 +147,7 @@
         } else if (currentPrice < lastPrice) {
             return 'rgba(0, 0, 255, 0.3)'; // 하강 시 파란색 배경
         } else {
-            return 'rgba(0, 123, 255, 0.3)'; // 동일 시 기본 배경
+            return 'rgba(0, 0, 0, 0.3)'; // 동일 시 기본 배경
         }
     }
 
@@ -166,43 +161,44 @@
         } else if (currentPrice < lastPrice) {
             return 'rgba(0, 0, 255, 1)'; // 하강 시 파란색 테두리
         } else {
-            return 'rgba(0, 123, 255, 1)'; // 동일 시 기본 테두리
+            return 'rgba(0, 0, 0, 1)'; // 동일 시 기본 테두리
         }
     }
 
     // 차트 설정
     var ctx = document.getElementById('coinChart').getContext('2d');
-   var coinChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: coinLabels,
-        datasets: [{
-            label: '코인 가격',
-            data: coinPrices,
-            backgroundColor: getChartBackgroundColor(coinPrices),
-            borderColor: getChartBorderColor(coinPrices),
-            borderWidth: 1,
-            pointBackgroundColor: function(context) {
-                var index = context.dataIndex;
-                var currentPrice = context.dataset.data[index];
+    var coinChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: coinLabels,
+            datasets: [{
+                label: '코인 가격',
+                data: coinPrices,
+                backgroundColor: getChartBackgroundColor(coinPrices),
+                borderColor: getChartBorderColor(coinPrices),
+                borderWidth: 1,
+                pointBackgroundColor: function(context) {
+                    var index = context.dataIndex;
+                    var currentPrice = context.dataset.data[index];
 
-                if (index > 0) {
-                    var lastPrice = context.dataset.data[index - 1];
-                    if (currentPrice > lastPrice) {
-                        return 'rgba(255, 0, 0, 1)'; // 상승 시 빨간색 포인트
-                    } else if (currentPrice < lastPrice) {
-                        return 'rgba(0, 0, 255, 1)'; // 하강 시 파란색 포인트
+                    if (index > 0) {
+                        var lastPrice = context.dataset.data[index - 1];
+                        if (currentPrice > lastPrice) {
+                            return 'rgba(255, 0, 0, 1)'; // 상승 시 빨간색 포인트
+                        } else if (currentPrice < lastPrice) {
+                            return 'rgba(0, 0, 255, 1)'; // 하강 시 파란색 포인트
+                        }
                     }
-                }
 
-                return 'rgba(0, 0, 0, 1)'; // 기본 포인트 색상
-            }
-        }]
-    },
-    options: {
-        maintainAspectRatio: false
-    }
-});
+                    return 'rgba(0, 0, 0, 1)'; // 기본 포인트 색상
+                }
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+        }
+    });
+
 </script>
 </body>
 </html>
