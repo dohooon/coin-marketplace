@@ -12,6 +12,14 @@
         .completed-row {
             text-decoration: line-through;
         }
+
+
+
+
+
+
+
+
     </style>
 </head>
 <body>
@@ -19,11 +27,18 @@
 {% include 'navbar.html' %}
 <!-- 거래 게시판 -->
 <div class="container">
-    <h1>거래 게시판</h1>
-    <h2>거래 목록</h2>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#sellCoinModal">판매글 게시</button>
+    <div style="text-align: center;">
+        <h1><br>거래 게시판</h1>
+    </div>
+
+    <div style="text-align: right;">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#sellCoinModal">판매글 게시</button>
+    </div>
     <table class="table">
         <thead>
+        <tr>
+            <th colspan="7" style="text-align: center;">거래 목록</th>
+        </tr>
         <tr>
             <th scope="col">글쓴이</th>
             <th scope="col">코인 수</th>
@@ -42,8 +57,8 @@
         <tr id={{ post._id }} class="completed-row">
             {% endif %}
             <td>{{ post.user }}</td>
-            <td>{{ post.coin_count }}</td>
-            <td>{{ post.price }}</td>
+            <td>{{ post.coin_count }} COINS</td>
+            <td>{{ post.price }} WON</td>
             <td>{{ post.timestamp }}</td>
             <td>{{ post.status }}</td>
             <td>
@@ -70,7 +85,6 @@
         </tbody>
     </table>
 </div>
-
 
 
 {% include 'deposit_modal.html' %}
@@ -121,7 +135,7 @@
                 <form>
                     <div class="form-group">
                         <label for="buy-coin-count">구매할 코인 수:</label>
-                        <input type="number" class="form-control" id="buy-coin-count" required>
+                        <input type="number" class="form-control" id="buy-coin-count" readonly>
                     </div>
                     <div class="form-group">
                         <label for="buy-coin-price">코인 가격:</label>
@@ -160,29 +174,25 @@
     }
 
     function showBuyModal(postId, coinCount, coinPrice) {
-        document.getElementById('buy-coin-count').value = '';
+        document.getElementById('buy-coin-count').value = coinCount;
         document.getElementById('buy-coin-price').value = coinPrice;
 
         $('#buyModal').modal('show');
 
         document.getElementById('confirm-buy').onclick = function() {
-            let buyCount = document.getElementById('buy-coin-count').value;
-            if (buyCount !== '' && Number(buyCount) > 0 && Number(buyCount) <= Number(coinCount)) {
-                buyCoinFromPost(postId, buyCount);
-                $('#buyModal').modal('hide');
-            } else {
-                alert('유효한 코인 수량을 입력하세요.');
-            }
+        buyCoinFromPost(postId, coinCount);
+        $('#buyModal').modal('hide');
         }
     }
 
-    function buyCoinFromPost(postId, buyCount) {
+
+    function buyCoinFromPost(postId, coinCount) {
         fetch('/buy_coin_from_post/' + postId, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ buyCount: buyCount })
+            body: JSON.stringify({ buyCount: coinCount })
         })
         .then(response => response.json())
         .then(data => {
@@ -196,9 +206,6 @@
             }
         });
     }
-
-
-
 
 
 

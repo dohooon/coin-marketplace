@@ -16,68 +16,96 @@
 {% include 'navbar.html' %}
 
 <div class="main">
-    <div class="container d-flex justify-content-end">
-        <div class="coin-info" style="margin-bottom: 60px;">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col" colspan="2" style="text-align:center">코인 정보</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% if market_coin_count < 0 %}
-                <tr>
-                    <td>마켓 보유 코인 수:</td>
-                    <td>0</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td>마켓 보유 코인 수:</td>
-                    <td>{{ market_coin_count }} COINS</td>
-                </tr>
-                {% endif %}
-                <tr>
-                    <td>현재 코인 가격:</td>
-                    <td>{{ market_coin_price }} WON</td>
-                </tr>
-                <tr>
-                    <td>코인 등락률</td>
-                    <td>{% if coin_change_rate > 0 %}
-                        <span style="color: red;">+{{ coin_change_rate }}%</span>
-                        {% elif coin_change_rate == 0 %}
-                        <span>{{ coin_change_rate }}%</span>
-                        {% else %}
-                        <span style="color: blue;">{{ coin_change_rate }}%</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% if 'username' in session %}
-                <tr>
-                    <td>보유 코인 수:</td>
-                    <td>{{ coin_count }} COINS</td>
-                </tr>
-                <tr>
-                    <td>계정 잔고:</td>
-                    <td>{{ "{:,.0f}".format(account_balance) }} WON</td>
-                    {% endif %}
-                </tr>
-                </tbody>
-            </table>
-        </div>
 
-        <div class="coin-button col-md-4 text-left">
-            {% if 'username' in session %}
-            {% if market_coin_count %}
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal">코인 구매하기
-            </button>
-            {% else %}
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal" disabled>코인
-                구매하기
-            </button>
-            {% endif %}
-            {% endif %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="coin-info" style="margin-bottom: 60px;">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col" colspan="2" style="text-align:center">코인 정보</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if market_coin_count < 0 %}
+                        <tr>
+                            <td>마켓 보유 코인 수:</td>
+                            <td>0</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td>마켓 보유 코인 수:</td>
+                            <td>{{ market_coin_count }} COINS</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td>현재 코인 가격:</td>
+                            <td>{{ market_coin_price }} WON</td>
+                        </tr>
+                        <tr>
+                            <td>코인 등락률</td>
+                            <td>
+                                {% if coin_change_rate > 0 %}
+                                <span style="color: red;">+{{ coin_change_rate }}%</span>
+                                {% elif coin_change_rate == 0 %}
+                                <span>{{ coin_change_rate }}%</span>
+                                {% else %}
+                                <span style="color: blue;">{{ coin_change_rate }}%</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="coin-button col-md-4 text-left">
+                    {% if 'username' in session %}
+                    {% if market_coin_count %}
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal">코인
+                        구매하기
+                    </button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#buyCoinModal"
+                            disabled>코인 구매하기
+                    </button>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                {% if 'username' in session %}
+                <div class="user-info">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col" colspan="2" style="text-align:center">사용자 정보</th>
+                        </tr>
+                        </thead>
+                        <tr>
+                            <td style="text-align: center;">사용자 id : </td>
+                            <td style="text-align: center;">{{ session['username']}}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;">보유 코인 수:</td>
+                            <td style="text-align: center;">{{ coin_count }} COINS</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;">계정 잔고:</td>
+                            <td style="text-align: center;">{{ "{:,.0f}".format(account_balance) }} WON</td>
+                        </tr>
+
+                    </table>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
+</div>
+
+
+</div>
 </div>
 
 
@@ -130,6 +158,16 @@
         left: 20%;
         transform: translate(-50%, -50%);
     }
+
+
+
+
+
+
+
+
+
+
 
 </style>
 
@@ -198,6 +236,16 @@
             maintainAspectRatio: false,
         }
     });
+
+
+
+
+
+
+
+
+
+
 
 </script>
 </body>

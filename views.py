@@ -1,8 +1,9 @@
 from flask import render_template, request, url_for, redirect, jsonify, session, flash
 from create_app import create_app, mongo
 from bson.objectid import ObjectId
-import pymongo
 from datetime import datetime
+from flask import Flask
+from flask_pymongo import PyMongo
 
 app = create_app()
 
