@@ -7,7 +7,7 @@ from flask_pymongo import PyMongo
 
 app = create_app()
 
-# 게시글 테이블
+
 class TradePost:
     def __init__(self, _id, user, coin_count, price, timestamp, status):
         self._id = _id
@@ -18,7 +18,7 @@ class TradePost:
         self.status = status
 
     def save(self):
-        # MongoDB에 게시글 저장
+
         trade_posts = mongo.db.trade_posts
         trade_posts.insert_one({
             'user': self.user,
@@ -43,7 +43,7 @@ def get_posts():
 
         trade_post = TradePost(_id=_id, user=user, coin_count=coin_count, price=price, timestamp=timestamp, status=status)
         post_list.append(trade_post)
-    #날짜별 내림차순 정렬
+
     post_list.sort(key=lambda x: x.timestamp, reverse=True)
     return post_list
 
@@ -65,15 +65,15 @@ def sell_coin():
             new_user_coin_count = user_coin_count - sell_coin_count
             new_market_coin_count = market_info.get('coin_count', 0) + sell_coin_count
 
-            #판매자가 게시글을 올리면 게시글에 올린 만큼의 코인이 마켓에 추가되고 판매자의 코인은 줄어듭니다.
+
             users.update_one({'name': session['username']}, {'$set': {'coin_count': new_user_coin_count}})
             marketplace.update_one({}, {'$set': {'coin_count': new_market_coin_count}})
 
-            # 새로운 게시글 객체 생성
+
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             TradePost(_id=ObjectId(), user=session['username'], coin_count=sell_coin_count, price=sell_coin_price, timestamp=timestamp, status='판매 중').save()
 
-            # 게시글 목록 가져오기
+
             posts = get_posts()
 
             return render_template('trade_post.html', posts=posts)
@@ -97,14 +97,14 @@ def delete_post(post_id):
             user = users.find_one({'name': session['username']})
             user_coin_count = user.get('coin_count', 0)
 
-            # 게시글에 올라온 코인 수 만큼이 삭제한 사용자의 코인에 추가되고 마켓에서 삭제됩니다.
+
             new_user_coin_count = user_coin_count + post_coin_count
             new_market_coin_count = market_info.get('coin_count', 0) - post_coin_count
 
             users.update_one({'name': session['username']}, {'$set': {'coin_count': new_user_coin_count}})
             marketplace.update_one({}, {'$set': {'coin_count': new_market_coin_count}})
 
-            # 게시글 삭제
+
             trade_posts.delete_one({"_id": ObjectId(post_id)})
             return jsonify({'success': True})
         else:
@@ -137,19 +137,18 @@ def buy_coin_from_post(post_id):
                 new_buyer_balance = buyer_balance - buy_count * post_coin_price
                 new_buyer_coin_count = buyer_coin_count + buy_count
 
-                #마켓의 코인 수량 및 가격 업데이트
+
                 new_market_coin_count = market_info.get('coin_count', 0) - buy_count
                 marketplace.update_one({}, {'$set': {'coin_count': new_market_coin_count}})
                 marketplace.update_one({}, {'$set': {'coin_price': post_coin_price}})
 
-                # 판매자의 잔고 업데이트
+
                 users.update_one({'name': post_user}, {'$set': {'account_balance': new_post_user_balance}})
-                # 구매자의 잔고 및 코인 개수 업데이트
                 users.update_one({'name': session['username']}, {'$set': {'account_balance': new_buyer_balance, 'coin_count': new_buyer_coin_count}})
 
-                # 코인 데이터 추가
+
                 add_coin_data(post_coin_price)
-                # 게시글 상태 업데이트
+
                 trade_posts.update_one({"_id": ObjectId(post_id)}, {'$set': {'coin_count': new_post_coin_count}})
                 if new_post_coin_count == 0:
                     trade_posts.update_one({"_id": ObjectId(post_id)}, {'$set': {'status': '거래 완료'}})
@@ -191,25 +190,25 @@ def home():
     marketplace = mongo.db.marketplace
     market_info = marketplace.find_one()
 
-    # 코인 데이터 가져오기
+
     coin_data_db = mongo.db.coin_data
     coin_data = coin_data_db.find({}, {"_id": 0, "timestamp": 1, "price": 1}).sort("timestamp", 1)
     coin_labels = []
     coin_prices = []
 
-    # 마지막 두 거래의 가격을 가져옵니다.
+
     last_two_prices = list(coin_data_db.find().sort([('timestamp', -1)]).limit(2))
 
     if len(last_two_prices) < 2:
-        # 이전 거래가 없으면 변화율을 0으로 설정합니다.
+
         coin_change_rate = 0
     else:
-        # 가장 최근 거래와 그 이전 거래의 가격 차이를 계산합니다.
+
         coin_change_rate = round(
             ((last_two_prices[0]['price'] - last_two_prices[1]['price']) / last_two_prices[1]['price']) * 100, 2)
 
-    # 시간대와 가격 데이터 추출 및 포맷팅
-    prev_date = None  # 이전 값의 날짜를 저장하는 변수
+
+    prev_date = None
     for data in coin_data:
         timestamp = data["timestamp"]
         price = data["price"]
@@ -217,7 +216,7 @@ def home():
         formatted_timestamp = timestamp.strftime("%m/%d %I:%M%p")
 
         if prev_date == timestamp.date():
-            formatted_timestamp = timestamp.strftime("%I:%M%p")  # 날짜가 같으면 시간만 출력
+            formatted_timestamp = timestamp.strftime("%I:%M%p")
         else:
             prev_date = timestamp.date()
 
@@ -320,7 +319,7 @@ def buy_coin():
         marketplace = mongo.db.marketplace
         market_info = marketplace.find_one()
 
-        # coin_price는 가장 최근 거래 가격을 따름
+
         coin_price = market_info.get('coin_price', 100)
         coin_count = int(request.form['coin_count'])
 
